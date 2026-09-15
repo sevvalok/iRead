@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>iRead</title>
 <!-- Eski iPad Safari icin: zoom kapali, tam ekran his -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="iRead">
@@ -19,9 +19,10 @@
 <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAACDklEQVR42u3cvY3CMBiAYYhcoSsQP6KkpEpHxwgMhTIUIzABE7BEaoprAwoosvOF56lPd5dPL46RLM+Xq+0MulRGgDgQB+JAHIgDcSAOxIE4EAeIA3EgDsSBOBAHMaRhf936eHj/A3+7jaEP5XG9WTnotj+f9ueTOHiXiDjI3Yc49CEOfYgDcZBj8RAH4uBzqdQfburW9Pu73Be/snIoI8TEUqnnLPJRCB1HU7eZh1YpI9BrJfP6UZV6Tsbfh28riANxIA7EgTgQB+JAHIgDcYA4EAfiQByIA3EgDsSBOBAHiANxIA7EgTgQB+JAHIgDcYA4EAfiQByIA3EwUinKPzqxe21DXKlo5UAciANxYEMabQdn5UAciMMIEAfiQByIA3EgDsSBOBAH4gBx0JszpGU4Q4rXCuJAHBBtQ+oMqZUDcSAOxIE4EAeIA3EgDsSBOBAH4kAcTIszpGU4Q4rXCuJAHBBtQ+oMqZUDcSAOxIE4EAeIA3EgDsSBOBAH4kAciANxIA4QB+JAHIgDcSAOxIE4EAfiAHEgDsSBOBAH4kAc3SZ2aWTmueW84Sh3HP/Ppo/xlzErcifY5b5o6lYf332upr/ncPtbiImln3pafFtBHIiD/h7XmziwclBu2RCHMsShDHEoY1jJcGXxyny52poyXiuIA3EgDsSBOBAH4kAciAPEgTgQB+JAHIiDAJ6+i1GmNFfl6QAAAABJRU5ErkJggg==">
 <style>
 /* ============================================================
-   iRead - tek dosya e-kitap okuyucu
-   ES5 + prefixli CSS. CSS Grid ve CSS degiskeni KULLANILMAZ
-   (eski iPad Safari uyumlulugu icin).
+   iRead — tek dosya e-kitap okuyucu
+   ES5 + prefiksli CSS. CSS Grid ve CSS degiskeni KULLANILMAZ
+   (iPad 3 / iOS 9.3.6 Safari uyumlulugu icin).
+   Duzen: .screen (absolute, tam ekran) > flex kolon > .scrollarea (flex:1)
    ============================================================ */
 * { -webkit-box-sizing: border-box; box-sizing: border-box; }
 html, body {
@@ -33,374 +34,450 @@ html, body {
 }
 body {
   font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 16px; line-height: 1.4;
-  background: #F7F6F2; color: #17181B;
+  font-size: 16px; line-height: 1.45;
+  background: #F6F4EF; color: #1F2124;
   -webkit-font-smoothing: antialiased;
 }
 button, input, select { font-family: inherit; font-size: 16px; color: inherit; }
 button { border: 0; background: none; padding: 0; cursor: pointer; }
+input { -webkit-appearance: none; appearance: none; }
 .hidden { display: none !important; }
 .serif { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif; }
+.tiny { font-size: 12.5px; line-height: 1.5; opacity: .55; padding: 14px 20px; }
 
-/* ---------- TEMA RENKLERI ---------- */
-body.t-light  { background: #F7F6F2; color: #17181B; }
-body.t-sepia  { background: #F1E7D3; color: #4A3B2A; }
-body.t-night  { background: #101215; color: #E6E4DF; }
+/* ---------- TEMA ---------- */
+body.t-light { background: #F6F4EF; color: #1F2124; }
+body.t-sepia { background: #F1E7D4; color: #4A3B2A; }
+body.t-night { background: #101215; color: #E8E6E1; }
 
-/* ---------- EKRANLAR ---------- */
-.screen { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
-#library { overflow-y: auto; -webkit-overflow-scrolling: touch; }
-#reader  { overflow: hidden; }
-
-/* ---------- KITAPLIK BASLIK ---------- */
-#libHeader {
-  padding: 18px 22px 10px 22px;
+/* ---------- EKRAN CATISI ---------- */
+.screen {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
   display: -webkit-box; display: -webkit-flex; display: flex;
-  -webkit-box-align: end; -webkit-align-items: flex-end; align-items: flex-end;
-  -webkit-justify-content: space-between; justify-content: space-between;
+  -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column;
 }
-#libHeader h1 {
-  margin: 0; font-size: 30px; letter-spacing: -0.4px; font-weight: 600;
-  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+.scrollarea {
+  -webkit-box-flex: 1; -webkit-flex: 1; flex: 1;
+  overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
 }
-.hdr-sub { display: block; margin-top: 2px; font-size: 12px; opacity: .55; }
-.hdr-actions { display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-align: center; -webkit-align-items: center; align-items: center; }
+#reader { overflow: hidden; display: block; }
+
+/* ---------- ORTAK BUTONLAR ---------- */
 .ibtn {
-  min-width: 46px; height: 46px; padding: 0 10px; margin-left: 8px;
-  border-radius: 12px; background: rgba(0,0,0,.045);
+  min-width: 42px; height: 42px; padding: 0 9px; margin-left: 4px;
+  border-radius: 11px; color: inherit;
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
   -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
-  -webkit-transition: -webkit-transform .12s ease, background .15s ease;
-  transition: transform .12s ease, background .15s ease;
+  -webkit-transition: opacity .12s ease; transition: opacity .12s ease;
 }
-.ibtn:active { -webkit-transform: scale(.93); transform: scale(.93); }
-.ibtn svg { width: 21px; height: 21px; display: block; }
-.ibtn.primary { background: #2F5D50; color: #fff; font-size: 15px; font-weight: 500; padding: 0 16px; }
-.ibtn.primary svg { margin-right: 6px; width: 17px; height: 17px; }
-body.t-sepia .ibtn { background: rgba(74,59,42,.07); }
-body.t-night .ibtn { background: rgba(255,255,255,.08); }
-body.t-night .ibtn.primary { background: #3E7A69; color: #fff; }
+.ibtn:active { opacity: .45; }
+.ibtn svg { width: 20px; height: 20px; display: block; }
+.ibtn.solid { background: rgba(31,33,36,.06); }
+body.t-night .ibtn.solid { background: rgba(255,255,255,.09); }
+.btn-primary {
+  display: block; width: 100%; height: 50px; border-radius: 12px;
+  background: #1C4A52; color: #fff; font-size: 16px; font-weight: 500;
+}
+.btn-primary:active { opacity: .82; }
+.btn-ghost { display: block; width: 100%; height: 48px; font-size: 15px; color: #1C4A52; }
+body.t-night .btn-primary { background: #2A6B75; }
+body.t-night .btn-ghost { color: #8FC0C6; }
 
-/* ---------- ARAMA CUBUGU ---------- */
-.searchbar { padding: 4px 22px 8px 22px; display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-align: center; -webkit-align-items: center; align-items: center; }
+/* ---------- KITAPLIK BASLIK ---------- */
+#libHeader {
+  -webkit-flex: none; flex: none;
+  padding: 16px 20px 10px 20px;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+  border-bottom: 1px solid rgba(31,33,36,.07);
+}
+body.t-night #libHeader { border-bottom-color: rgba(255,255,255,.08); }
+.brand {
+  -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; min-width: 0;
+  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+  font-size: 25px; font-weight: 600; letter-spacing: -0.2px; margin: 0;
+}
+.hdr-actions {
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+  -webkit-flex: none; flex: none;
+}
+/* senkron rozeti */
+#syncChip {
+  font-size: 11.5px; padding: 5px 10px; border-radius: 20px;
+  background: rgba(31,33,36,.05); color: inherit; opacity: .75;
+  margin-right: 4px; white-space: nowrap;
+}
+body.t-night #syncChip { background: rgba(255,255,255,.08); }
+#syncChip i { display: inline-block; width: 6px; height: 6px; border-radius: 3px; background: #A8813F; margin-right: 6px; vertical-align: 1px; }
+#syncChip.ok i { background: #3C7D63; }
+#syncChip.err i { background: #B4503F; }
+#syncChip.off i { background: #9AA0A6; }
+
+/* ---------- ARAMA ---------- */
+.searchbar {
+  -webkit-flex: none; flex: none;
+  padding: 8px 20px; display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+}
 .searchbar input {
-  -webkit-appearance: none; appearance: none; border: 0; outline: none;
-  -webkit-box-flex: 1; -webkit-flex: 1; flex: 1;
-  height: 42px; padding: 0 14px; border-radius: 11px;
-  background: rgba(0,0,0,.05); color: inherit;
+  border: 0; outline: none; -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; min-width: 0;
+  height: 40px; padding: 0 13px; border-radius: 10px;
+  background: rgba(31,33,36,.05); color: inherit;
 }
 body.t-night .searchbar input { background: rgba(255,255,255,.09); }
-.searchbar button { margin-left: 12px; color: #2F5D50; font-size: 15px; }
-body.t-night .searchbar button { color: #7FB6A4; }
+.searchbar button { margin-left: 12px; font-size: 15px; color: #1C4A52; -webkit-flex: none; flex: none; }
+body.t-night .searchbar button { color: #8FC0C6; }
 
 /* ---------- KOLEKSIYON SERIDI ---------- */
 #collBar {
-  padding: 6px 22px 14px 22px; white-space: nowrap;
-  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  -webkit-flex: none; flex: none;
+  padding: 10px 20px 2px 20px; white-space: nowrap;
+  overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
 }
 .chip {
-  display: inline-block; padding: 9px 16px; margin-right: 8px;
-  border-radius: 20px; font-size: 14px; background: rgba(0,0,0,.05);
-  -webkit-transition: background .15s ease; transition: background .15s ease;
+  display: inline-block; padding: 7px 13px; margin-right: 7px;
+  border-radius: 16px; font-size: 13.5px; background: rgba(31,33,36,.05);
 }
 body.t-night .chip { background: rgba(255,255,255,.08); }
-.chip.on { background: #2F5D50; color: #fff; }
-body.t-night .chip.on { background: #3E7A69; }
-.chip.add { border: 1px dashed rgba(0,0,0,.2); background: none; }
-body.t-night .chip.add { border-color: rgba(255,255,255,.25); }
+.chip.on { background: #1C4A52; color: #fff; }
+body.t-night .chip.on { background: #2A6B75; }
+.chip.add { background: none; border: 1px solid rgba(31,33,36,.15); }
+body.t-night .chip.add { border-color: rgba(255,255,255,.2); }
 
-/* ---------- SIMDI OKU ---------- */
-#nowReading { padding: 0 22px 6px 22px; }
+/* ---------- BOLUM BASLIKLARI ---------- */
+.section { padding: 22px 20px 0 20px; }
+.section-head {
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: baseline; -webkit-align-items: baseline; align-items: baseline;
+  -webkit-justify-content: space-between; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.section-head h2 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .2px; opacity: .55; }
+.section-head span { font-size: 12px; opacity: .4; }
+
+/* ---------- DEVAM ET ---------- */
 .now-card {
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
-  padding: 16px; border-radius: 18px; background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,.08);
 }
-body.t-sepia .now-card { background: #FBF4E5; }
-body.t-night .now-card { background: #191C20; box-shadow: none; border: 1px solid rgba(255,255,255,.07); }
-.now-cover { width: 84px; height: 126px; border-radius: 6px; overflow: hidden; -webkit-flex: none; flex: none; background: #ddd; }
+.now-cover {
+  width: 78px; height: 117px; -webkit-flex: none; flex: none;
+  border-radius: 3px 5px 5px 3px; overflow: hidden; background: #E3DED5;
+  box-shadow: 0 3px 8px rgba(0,0,0,.18);
+}
 .now-cover img { width: 100%; height: 100%; display: block; }
-.now-meta { padding-left: 18px; -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; min-width: 0; }
-.now-kicker { font-size: 12px; letter-spacing: .3px; opacity: .5; }
-.now-title { font-size: 21px; margin: 3px 0 2px 0; font-family: "Iowan Old Style", Palatino, Georgia, serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.now-author { font-size: 13px; opacity: .55; }
-.now-bar { height: 4px; border-radius: 2px; background: rgba(0,0,0,.09); margin: 12px 0 8px 0; overflow: hidden; }
-body.t-night .now-bar { background: rgba(255,255,255,.13); }
-.now-bar i { display: block; height: 100%; background: #B08A46; }
-.now-go { display: inline-block; padding: 10px 18px; border-radius: 11px; background: #2F5D50; color: #fff; font-size: 15px; }
-body.t-night .now-go { background: #3E7A69; }
-.now-go:active { -webkit-transform: scale(.97); transform: scale(.97); }
+.now-meta { padding-left: 16px; -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; min-width: 0; }
+.now-title {
+  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+  font-size: 19px; line-height: 1.25; margin: 0 0 3px 0;
+  max-height: 48px; overflow: hidden;
+}
+.now-author { font-size: 13px; opacity: .55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.now-bar { height: 3px; border-radius: 2px; background: rgba(31,33,36,.1); margin: 11px 0 9px 0; overflow: hidden; }
+body.t-night .now-bar { background: rgba(255,255,255,.14); }
+.now-bar i { display: block; height: 100%; background: #A8813F; }
+.now-go {
+  display: inline-block; padding: 9px 15px; border-radius: 10px;
+  background: #1C4A52; color: #fff; font-size: 14px;
+}
+body.t-night .now-go { background: #2A6B75; }
+.now-go:active { opacity: .82; }
 
-/* ---------- RAFLAR ---------- */
-#shelves { padding: 10px 22px 60px 22px; }
-.shelf { margin-bottom: 26px; }
-.shelf-label { font-size: 11px; letter-spacing: 1.2px; opacity: .35; margin-bottom: 10px; }
-.shelf-row {
+/* ---------- KITAP IZGARASI (flexbox + wrap, CSS Grid YOK) ---------- */
+#shelves { padding: 0 12px 40px 12px; }
+.grid {
   display: -webkit-box; display: -webkit-flex; display: flex;
-  -webkit-flex-wrap: nowrap; flex-wrap: nowrap;
+  -webkit-flex-wrap: wrap; flex-wrap: wrap;
 }
-.shelf-board {
-  height: 10px; margin-top: 10px; border-radius: 0 0 5px 5px;
-  background: -webkit-linear-gradient(top, #D9CFC0, #C4B7A4);
-  background: linear-gradient(to bottom, #D9CFC0, #C4B7A4);
-  box-shadow: 0 6px 12px rgba(0,0,0,.07);
-}
-body.t-sepia .shelf-board { background: -webkit-linear-gradient(top, #D9C7A4, #C2AE87); background: linear-gradient(to bottom, #D9C7A4, #C2AE87); }
-body.t-night .shelf-board { background: -webkit-linear-gradient(top, #262A2F, #1B1E22); background: linear-gradient(to bottom, #262A2F, #1B1E22); box-shadow: none; }
-
-/* ---------- KITAP ---------- */
 .book {
-  width: 132px; margin-right: 20px; -webkit-flex: none; flex: none;
-  position: relative;
-  -webkit-transition: -webkit-transform .16s ease, opacity .16s ease;
-  transition: transform .16s ease, opacity .16s ease;
+  padding: 0 8px 24px 8px; position: relative;
+  -webkit-transition: opacity .15s ease; transition: opacity .15s ease;
 }
-.book:active { -webkit-transform: scale(.97); transform: scale(.97); }
-.book.lifted { -webkit-transform: scale(1.04); transform: scale(1.04); opacity: .35; }
+.grid.cols-2 .book { width: 50%; }
+.grid.cols-3 .book { width: 33.3333%; }
+.grid.cols-4 .book { width: 25%; }
+.grid.cols-5 .book { width: 20%; }
+.grid.cols-6 .book { width: 16.6666%; }
+.book:active { opacity: .7; }
+.book.lifted { opacity: .3; }
 .book-cover {
-  width: 132px; height: 198px; border-radius: 4px 7px 7px 4px;
-  overflow: hidden; position: relative; background: #E3DED5;
-  /* iPad 3 icin tek katmanli, ucuz golge */
-  box-shadow: 0 4px 8px rgba(0,0,0,.18);
+  position: relative; width: 100%; height: 0; padding-bottom: 150%;  /* 2:3 sabit oran */
+  border-radius: 3px 5px 5px 3px; overflow: hidden; background: #E3DED5;
+  box-shadow: 0 3px 8px rgba(0,0,0,.16);
 }
-body.t-night .book-cover { box-shadow: 0 4px 8px rgba(0,0,0,.5); }
-.book-cover img { width: 100%; height: 100%; display: block; }
-/* kitap sirti */
-.book-cover:after {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 8px;
-  background: -webkit-linear-gradient(left, rgba(0,0,0,.28), rgba(0,0,0,0));
-  background: linear-gradient(to right, rgba(0,0,0,.28), rgba(0,0,0,0));
+body.t-night .book-cover { box-shadow: 0 3px 8px rgba(0,0,0,.5); }
+.book-cover img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; }
+.book-cover:after {                                   /* kitap sirti */
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+  background: -webkit-linear-gradient(left, rgba(0,0,0,.22), rgba(0,0,0,0));
+  background: linear-gradient(to right, rgba(0,0,0,.22), rgba(0,0,0,0));
 }
-.book-title { font-size: 13px; margin-top: 10px; line-height: 1.25; max-height: 32px; overflow: hidden; }
-.book-sub { font-size: 11px; opacity: .5; margin-top: 3px; }
-.book-prog { height: 3px; border-radius: 2px; background: rgba(0,0,0,.1); margin-top: 6px; overflow: hidden; }
-body.t-night .book-prog { background: rgba(255,255,255,.14); }
-.book-prog i { display: block; height: 100%; background: #B08A46; }
+.book-title { font-size: 13px; line-height: 1.3; margin-top: 9px; min-height: 34px; overflow: hidden; }
+.book-sub { font-size: 11px; opacity: .45; margin-top: 2px; }
+.book-prog { height: 2px; border-radius: 1px; background: rgba(31,33,36,.1); margin-top: 6px; overflow: hidden; }
+body.t-night .book-prog { background: rgba(255,255,255,.15); }
+.book-prog i { display: block; height: 100%; background: #A8813F; }
 .book-more {
-  position: absolute; right: 4px; top: 4px; width: 30px; height: 30px;
-  border-radius: 15px; background: rgba(0,0,0,.42); color: #fff;
-  font-size: 15px; line-height: 28px; text-align: center; letter-spacing: 1px;
+  position: absolute; right: 12px; top: 4px; width: 28px; height: 28px;
+  border-radius: 14px; background: rgba(0,0,0,.4); color: #fff;
+  font-size: 13px; line-height: 26px; text-align: center; letter-spacing: .5px;
 }
-.book-badge { position: absolute; left: 8px; top: 8px; font-size: 13px; }
-.drop-mark { position: absolute; left: -11px; top: 0; width: 3px; height: 198px; border-radius: 2px; background: #B08A46; }
+.book-badge {
+  position: absolute; left: 12px; top: 4px; padding: 2px 6px; border-radius: 9px;
+  background: rgba(0,0,0,.42); color: #fff; font-size: 10px; line-height: 15px;
+}
+.cloud-only .book-cover img { opacity: .45; }
+.drop-mark { position: absolute; left: 2px; top: 0; bottom: 24px; width: 3px; border-radius: 2px; background: #A8813F; }
 #dragGhost {
-  position: fixed; z-index: 900; pointer-events: none; width: 132px;
-  -webkit-transform-origin: 50% 50%; opacity: .92;
+  position: fixed; z-index: 900; pointer-events: none; width: 108px; opacity: .95;
 }
-#dragGhost .book-cover { box-shadow: 0 18px 34px rgba(0,0,0,.4); }
+#dragGhost .book-cover { box-shadow: 0 14px 28px rgba(0,0,0,.4); }
 
 /* ---------- LISTE GORUNUMU ---------- */
-.list-row {
-  display: -webkit-box; display: -webkit-flex; display: flex;
+.grid.list { display: block; }
+.grid.list .book {
+  width: 100%; padding: 0; display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
-  padding: 12px 4px; position: relative;
-  border-bottom: 1px solid rgba(0,0,0,.07);
+  border-bottom: 1px solid rgba(31,33,36,.07); padding: 11px 8px;
 }
-body.t-night .list-row { border-bottom-color: rgba(255,255,255,.08); }
-.list-row .book-cover { width: 52px; height: 78px; -webkit-flex: none; flex: none; }
-.list-meta { padding-left: 16px; -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; min-width: 0; }
-.list-title { font-size: 16px; }
-.list-sub { font-size: 12px; opacity: .5; margin-top: 3px; }
+body.t-night .grid.list .book { border-bottom-color: rgba(255,255,255,.08); }
+.grid.list .book-cover { width: 44px; height: 66px; padding-bottom: 0; -webkit-flex: none; flex: none; }
+.list-meta { padding-left: 14px; -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; min-width: 0; }
+.list-title { font-size: 15.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.list-sub { font-size: 12px; opacity: .45; margin-top: 2px; }
+.grid.list .book-more { position: static; -webkit-flex: none; flex: none; background: rgba(31,33,36,.08); color: inherit; }
+body.t-night .grid.list .book-more { background: rgba(255,255,255,.1); }
 
 /* ---------- BOS DURUM ---------- */
-#emptyState { padding: 70px 30px; text-align: center; opacity: .6; }
+#emptyState { padding: 60px 34px; text-align: center; }
+#emptyState b { display: block; font-size: 17px; margin-bottom: 8px; font-family: "Iowan Old Style", Palatino, Georgia, serif; }
+#emptyState span { font-size: 14px; opacity: .55; }
 
-/* ---------- READER ---------- */
+/* ---------- GIRIS EKRANI ---------- */
+#auth { -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center; }
+.auth-box { width: 340px; max-width: 86%; margin: 0 auto; text-align: center; }
+.auth-logo { font-family: "Iowan Old Style", Palatino, Georgia, serif; font-size: 40px; letter-spacing: -0.5px; margin: 0; }
+.auth-sub { font-size: 14px; opacity: .55; margin: 8px 0 30px 0; }
+.auth-box input {
+  display: block; width: 100%; height: 50px; margin-bottom: 10px;
+  padding: 0 15px; border-radius: 12px; border: 1px solid rgba(31,33,36,.14);
+  background: #fff; color: inherit; outline: none; font-size: 16px;
+}
+body.t-night .auth-box input { background: #17191D; border-color: rgba(255,255,255,.14); }
+.auth-msg { font-size: 13px; min-height: 20px; margin: 12px 0 2px 0; color: #B4503F; }
+.auth-foot { margin-top: 18px; font-size: 13px; opacity: .5; }
+
+/* ============================================================
+   READER
+   ============================================================ */
 #reader { background: #FFFFFF; }
-body.t-sepia #reader { background: #F6EEDC; }
+body.t-sepia #reader { background: #F4EADA; }
 body.t-night #reader { background: #0D0F11; }
 #readerStage { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
 #epubArea, #pdfArea, #demoArea { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
 #pdfArea { overflow: auto; -webkit-overflow-scrolling: touch; text-align: center; }
-#pdfCanvas { display: inline-block; margin: 12px auto; max-width: 100%; box-shadow: 0 2px 14px rgba(0,0,0,.18); }
+#pdfCanvas { display: inline-block; margin: 12px auto; max-width: 100%; box-shadow: 0 2px 10px rgba(0,0,0,.16); }
 #demoArea { overflow: hidden; }
 #demoInner {
   position: absolute; top: 0; left: 0; bottom: 0;
-  -webkit-column-gap: 0; column-gap: 0;
-  -webkit-transition: -webkit-transform .22s ease-out; transition: transform .22s ease-out;
+  -webkit-transition: -webkit-transform .2s ease-out; transition: transform .2s ease-out;
 }
 #demoInner p { margin: 0 0 1em 0; text-align: justify; }
-#demoInner h2 { font-size: 1.35em; margin: 0 0 .8em 0; font-weight: 600; }
+#demoInner h2 { font-size: 1.3em; margin: 0 0 .8em 0; font-weight: 600; }
 
-/* dokunma bolgeleri: iframe uzerinde saydam katman */
-#tapLayer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 30; display: -webkit-box; display: -webkit-flex; display: flex; }
-#tzPrev { width: 30%; }
-#tzMid  { width: 40%; }
-#tzNext { width: 30%; }
-#tapLayer.off { display: none; }
-
-/* uygulama ici karartma */
+#tapLayer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 30;
+  display: -webkit-box; display: -webkit-flex; display: flex; }
+#tzPrev { width: 30%; } #tzMid { width: 40%; } #tzNext { width: 30%; }
 #dimOverlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 25; background: #000; opacity: 0; pointer-events: none; }
 
-/* ---------- READER TOOLBAR ---------- */
 #rTop, #rBottom {
   position: absolute; left: 0; right: 0; z-index: 60;
-  background: rgba(255,255,255,.94);
-  -webkit-transition: -webkit-transform .22s ease, opacity .22s ease;
-  transition: transform .22s ease, opacity .22s ease;
+  background: rgba(255,255,255,.96);
+  -webkit-transition: -webkit-transform .2s ease, opacity .2s ease;
+  transition: transform .2s ease, opacity .2s ease;
 }
-body.t-sepia #rTop, body.t-sepia #rBottom { background: rgba(246,238,220,.95); }
-body.t-night #rTop, body.t-night #rBottom { background: rgba(20,22,25,.95); color: #E6E4DF; }
-#rTop { top: 0; padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,.07);
+body.t-sepia #rTop, body.t-sepia #rBottom { background: rgba(244,234,218,.97); }
+body.t-night #rTop, body.t-night #rBottom { background: rgba(17,19,22,.96); color: #E8E6E1; }
+#rTop { top: 0; padding: 8px 10px; border-bottom: 1px solid rgba(31,33,36,.07);
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center; }
-#rBottom { bottom: 0; padding: 10px 22px 14px 22px; border-top: 1px solid rgba(0,0,0,.06); }
+#rBottom { bottom: 0; padding: 9px 20px 12px 20px; border-top: 1px solid rgba(31,33,36,.06); }
 body.t-night #rTop { border-bottom-color: rgba(255,255,255,.08); }
 body.t-night #rBottom { border-top-color: rgba(255,255,255,.08); }
 #rTop.up { -webkit-transform: translateY(-102%); transform: translateY(-102%); opacity: 0; }
 #rBottom.down { -webkit-transform: translateY(102%); transform: translateY(102%); opacity: 0; }
-#rTitle { -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; text-align: center; font-size: 15px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 6px; opacity: .85; }
-.tbar-prog { height: 3px; border-radius: 2px; background: rgba(0,0,0,.1); overflow: hidden; }
-body.t-night .tbar-prog { background: rgba(255,255,255,.15); }
-.tbar-prog i { display: block; height: 100%; background: #B08A46; width: 0; }
+#rTitle { -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; min-width: 0; text-align: center; font-size: 14.5px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px; opacity: .8; }
+.tbar-prog { height: 2px; border-radius: 1px; background: rgba(31,33,36,.12); overflow: hidden; }
+body.t-night .tbar-prog { background: rgba(255,255,255,.16); }
+.tbar-prog i { display: block; height: 100%; background: #A8813F; width: 0; }
 .tbar-info { display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-justify-content: space-between; justify-content: space-between;
-  font-size: 12px; opacity: .55; margin-top: 8px; }
+  font-size: 11.5px; opacity: .5; margin-top: 7px; }
+#loading { position: absolute; top: 50%; left: 0; right: 0; z-index: 200; text-align: center;
+  margin-top: -30px; padding: 0 30px; font-size: 14px; opacity: .75; line-height: 1.5; }
 
-/* ---------- PANEL / SHEET ORTAK ---------- */
-.mask { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 100; background: rgba(0,0,0,.32); opacity: 0;
-  -webkit-transition: opacity .2s ease; transition: opacity .2s ease; }
+/* ============================================================
+   PANELLER
+   ============================================================ */
+.mask { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 100; background: rgba(0,0,0,.34);
+  opacity: 0; -webkit-transition: opacity .18s ease; transition: opacity .18s ease; }
 .mask.show { opacity: 1; }
 .sheet {
-  position: absolute; left: 50%; bottom: 0; z-index: 110; width: 460px; max-width: 94%;
-  margin-left: -230px; margin-bottom: 14px;
-  background: #fff; border-radius: 18px; overflow: hidden;
-  -webkit-transform: translateY(18px); transform: translateY(18px); opacity: 0;
-  -webkit-transition: -webkit-transform .2s ease, opacity .2s ease;
-  transition: transform .2s ease, opacity .2s ease;
-  box-shadow: 0 18px 40px rgba(0,0,0,.25);
+  position: fixed; left: 50%; bottom: 0; z-index: 110;
+  width: 440px; max-width: 94%; margin-left: -220px; margin-bottom: 12px;
+  max-height: 88%; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: #fff; border-radius: 16px;
+  -webkit-transform: translateY(14px); transform: translateY(14px); opacity: 0;
+  -webkit-transition: -webkit-transform .18s ease, opacity .18s ease;
+  transition: transform .18s ease, opacity .18s ease;
+  box-shadow: 0 12px 34px rgba(0,0,0,.24);
 }
 .sheet.show { -webkit-transform: translateY(0); transform: translateY(0); opacity: 1; }
-.sheet { max-height: 92%; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 body.t-sepia .sheet { background: #FBF4E5; }
-body.t-night .sheet { background: #1D2126; color: #E6E4DF; }
+body.t-night .sheet { background: #1B1E22; color: #E8E6E1; }
 @media (max-width: 520px) { .sheet { width: 94%; margin-left: -47%; } }
-.sheet-head { padding: 16px 20px 12px 20px; border-bottom: 1px solid rgba(0,0,0,.07); }
+.sheet-head { padding: 16px 20px 12px 20px; border-bottom: 1px solid rgba(31,33,36,.07); }
 body.t-night .sheet-head { border-bottom-color: rgba(255,255,255,.09); }
 .sheet-head b { font-size: 16px; font-weight: 600; display: block; }
 .sheet-head span { font-size: 12px; opacity: .5; }
 .sheet-item {
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
-  width: 100%; text-align: left; padding: 15px 20px; font-size: 16px;
-  border-bottom: 1px solid rgba(0,0,0,.05);
+  width: 100%; text-align: left; padding: 14px 20px; font-size: 15.5px;
+  border-bottom: 1px solid rgba(31,33,36,.05);
 }
 body.t-night .sheet-item { border-bottom-color: rgba(255,255,255,.06); }
-.sheet-item:active { background: rgba(0,0,0,.05); }
-body.t-night .sheet-item:active { background: rgba(255,255,255,.07); }
-.sheet-item em { font-style: normal; width: 30px; -webkit-flex: none; flex: none; }
-.sheet-item.danger { color: #C0392B; }
-.sheet-cancel { display: block; width: 100%; padding: 16px; text-align: center; font-size: 16px; color: #2F5D50; font-weight: 500; }
-body.t-night .sheet-cancel { color: #7FB6A4; }
-.sheet-scroll { max-height: 58%; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.sheet-item:active { background: rgba(31,33,36,.05); }
+.sheet-item em { font-style: normal; width: 28px; -webkit-flex: none; flex: none; opacity: .75; }
+.sheet-item.danger { color: #B4503F; }
+.sheet-cancel { display: block; width: 100%; padding: 15px; text-align: center; font-size: 15.5px; color: #1C4A52; font-weight: 500; }
+body.t-night .sheet-cancel { color: #8FC0C6; }
+.sheet-scroll { max-height: 60vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.kv { padding: 14px 20px; font-size: 14px; line-height: 1.9; }
+.kv b { font-weight: 600; opacity: .55; display: inline-block; min-width: 96px; }
 
 /* ---------- Aa PANELI ---------- */
 #aaPanel { z-index: 130; }
-.aa-group { padding: 16px 20px; border-bottom: 1px solid rgba(0,0,0,.06); }
+.aa-group { padding: 15px 20px; border-bottom: 1px solid rgba(31,33,36,.06); }
 body.t-night .aa-group { border-bottom-color: rgba(255,255,255,.07); }
-.aa-label { font-size: 11px; letter-spacing: .8px; opacity: .45; margin-bottom: 10px; }
+.aa-label { font-size: 11px; letter-spacing: .5px; opacity: .45; margin-bottom: 9px; }
 .seg { display: -webkit-box; display: -webkit-flex; display: flex; }
 .seg button {
-  -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; height: 48px; margin-right: 8px;
-  border-radius: 12px; background: rgba(0,0,0,.05); font-size: 15px;
+  -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; height: 46px; margin-right: 7px;
+  border-radius: 11px; background: rgba(31,33,36,.05); font-size: 14.5px;
 }
 body.t-night .seg button { background: rgba(255,255,255,.08); }
 .seg button:last-child { margin-right: 0; }
-.seg button.on { background: #2F5D50; color: #fff; }
-body.t-night .seg button.on { background: #3E7A69; }
-.seg button.sw-light { background: #FFFFFF; color: #17181B; border: 1px solid rgba(0,0,0,.12); }
-.seg button.sw-sepia { background: #F1E2C3; color: #4A3B2A; border: 1px solid rgba(0,0,0,.08); }
-.seg button.sw-night { background: #1B1E22; color: #E6E4DF; border: 1px solid rgba(255,255,255,.14); }
-.seg button.sw-on { -webkit-box-shadow: 0 0 0 2px #B08A46; box-shadow: 0 0 0 2px #B08A46; }
+.seg button.on { background: #1C4A52; color: #fff; }
+body.t-night .seg button.on { background: #2A6B75; }
+.seg button.sw-light { background: #FFFFFF; color: #1F2124; border: 1px solid rgba(31,33,36,.12); }
+.seg button.sw-sepia { background: #F1E2C3; color: #4A3B2A; border: 1px solid rgba(31,33,36,.08); }
+.seg button.sw-night { background: #1B1E22; color: #E8E6E1; border: 1px solid rgba(255,255,255,.14); }
+.seg button.sw-on { -webkit-box-shadow: inset 0 0 0 2px #A8813F; box-shadow: inset 0 0 0 2px #A8813F; }
 .range-row { display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-align: center; -webkit-align-items: center; align-items: center; }
-.range-row span { font-size: 13px; opacity: .5; width: 24px; text-align: center; }
-input[type=range] { -webkit-appearance: none; appearance: none; -webkit-box-flex: 1; -webkit-flex: 1; flex: 1;
-  height: 26px; background: none; margin: 0 8px; }
-input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: rgba(0,0,0,.15); }
+.range-row span { font-size: 13px; opacity: .45; width: 22px; text-align: center; }
+input[type=range] { -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; height: 26px; background: none; margin: 0 8px; }
+input[type=range]::-webkit-slider-runnable-track { height: 3px; border-radius: 2px; background: rgba(31,33,36,.16); }
 body.t-night input[type=range]::-webkit-slider-runnable-track { background: rgba(255,255,255,.2); }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 13px;
-  background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.35); margin-top: -11px; }
-.fs-preview { font-size: 13px; opacity: .5; text-align: center; margin-top: 10px; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 12px;
+  background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.3); margin-top: -11px; }
+.fs-preview { font-size: 12.5px; opacity: .45; text-align: center; margin-top: 9px; }
 
-/* ---------- TOC DRAWER ---------- */
+/* ---------- DRAWER (icindekiler / arama / yer imleri) ---------- */
 #tocDrawer {
-  position: absolute; top: 0; left: 0; bottom: 0; width: 330px; max-width: 84%; z-index: 120;
+  position: absolute; top: 0; left: 0; bottom: 0; width: 320px; max-width: 84%; z-index: 120;
   background: #fff; -webkit-transform: translateX(-102%); transform: translateX(-102%);
-  -webkit-transition: -webkit-transform .24s ease; transition: transform .24s ease;
-  box-shadow: 2px 0 22px rgba(0,0,0,.18);
+  -webkit-transition: -webkit-transform .22s ease; transition: transform .22s ease;
+  box-shadow: 2px 0 18px rgba(0,0,0,.16);
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column;
 }
 body.t-sepia #tocDrawer { background: #FBF4E5; }
-body.t-night #tocDrawer { background: #16191D; color: #E6E4DF; }
+body.t-night #tocDrawer { background: #15181B; color: #E8E6E1; }
 #tocDrawer.show { -webkit-transform: translateX(0); transform: translateX(0); }
 #tocList { -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.toc-item { display: block; width: 100%; text-align: left; padding: 14px 20px; font-size: 15px;
-  border-bottom: 1px solid rgba(0,0,0,.05); }
+.toc-item { display: block; width: 100%; text-align: left; padding: 13px 20px; font-size: 14.5px;
+  border-bottom: 1px solid rgba(31,33,36,.05); }
 body.t-night .toc-item { border-bottom-color: rgba(255,255,255,.06); }
-.toc-item.sub { padding-left: 38px; font-size: 14px; opacity: .75; }
-.toc-item:active { background: rgba(0,0,0,.05); }
-.res-item { display: block; width: 100%; text-align: left; padding: 13px 20px; font-size: 14px; line-height: 1.45;
-  border-bottom: 1px solid rgba(0,0,0,.05); }
-.res-item b { color: #B08A46; font-weight: 600; }
-.tiny { font-size: 12px; opacity: .5; padding: 14px 20px; }
+.toc-item.sub { padding-left: 36px; font-size: 13.5px; opacity: .75; }
+.toc-item:active { background: rgba(31,33,36,.05); }
+.res-item { display: block; width: 100%; text-align: left; padding: 12px 20px; font-size: 13.5px; line-height: 1.45;
+  border-bottom: 1px solid rgba(31,33,36,.05); }
+.res-item b { color: #A8813F; font-weight: 600; }
 
-/* ---------- TOAST ---------- */
+/* ---------- TOAST / BANNER / GECIS ---------- */
 #toast {
-  position: absolute; left: 50%; bottom: 40px; z-index: 300; margin-left: -140px; width: 280px;
-  padding: 13px 16px; border-radius: 13px; background: rgba(20,22,25,.92); color: #fff;
-  text-align: center; font-size: 14px; opacity: 0; pointer-events: none;
-  -webkit-transition: opacity .25s ease; transition: opacity .25s ease;
+  position: fixed; left: 50%; bottom: 36px; z-index: 300; margin-left: -140px; width: 280px;
+  padding: 12px 16px; border-radius: 12px; background: rgba(20,22,25,.92); color: #fff;
+  text-align: center; font-size: 13.5px; opacity: 0; pointer-events: none;
+  -webkit-transition: opacity .22s ease; transition: opacity .22s ease;
 }
 #toast.show { opacity: 1; }
-
-/* ---------- KAPAK GECIS ANIMASYONU ---------- */
-/* sadece transform + opacity animasyonu (layout tetiklemez) */
-#flyCover { position: fixed; z-index: 500; pointer-events: none; border-radius: 5px; overflow: hidden;
-  box-shadow: 0 8px 18px rgba(0,0,0,.3);
-  -webkit-transform-origin: 50% 50%; transform-origin: 50% 50%;
-  -webkit-transition: -webkit-transform .24s ease-out, opacity .24s ease-out;
-  transition: transform .24s ease-out, opacity .24s ease-out; }
-#flyCover img { width: 100%; height: 100%; display: block; }
-
-/* ---------- YUKLENIYOR ---------- */
-#loading { position: absolute; top: 50%; left: 0; right: 0; z-index: 200; text-align: center;
-  margin-top: -30px; padding: 0 30px; font-size: 14px; opacity: .7; line-height: 1.5; }
-
-/* ---------- BILGI SERIDI (depolama / origin uyarilari) ---------- */
 #banner {
-  position: absolute; left: 0; right: 0; top: 0; z-index: 400;
-  padding: 12px 16px; background: #B08A46; color: #fff; font-size: 13px; line-height: 1.45;
+  position: fixed; left: 0; right: 0; top: 0; z-index: 400;
+  padding: 11px 16px; background: #A8813F; color: #fff; font-size: 12.5px; line-height: 1.45;
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
 }
 #banner span { -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; }
-#banner button { color: #fff; font-size: 13px; padding: 8px 10px; text-decoration: underline; }
-/* iOS'ta display:none olan file input bazen acilmaz; ekran disina alinir */
+#banner button { color: #fff; font-size: 12.5px; padding: 8px 10px; text-decoration: underline; -webkit-flex: none; flex: none; }
+#flyCover { position: fixed; z-index: 500; pointer-events: none; border-radius: 4px; overflow: hidden;
+  box-shadow: 0 8px 18px rgba(0,0,0,.3);
+  -webkit-transform-origin: 50% 50%; transform-origin: 50% 50%;
+  -webkit-transition: -webkit-transform .22s ease-out, opacity .22s ease-out;
+  transition: transform .22s ease-out, opacity .22s ease-out; }
+#flyCover img { width: 100%; height: 100%; display: block; }
 .offscreen { position: absolute; left: -9999px; top: 0; width: 1px; height: 1px; opacity: 0; }
+
+/* ---------- SAFE AREA (iPhone 14) — iOS 9'da @supports false dondugu icin
+     eski cihazlarda normal padding gecerli kalir ---------- */
+@supports (padding-top: env(safe-area-inset-top)) {
+  #libHeader { padding-top: calc(16px + env(safe-area-inset-top)); }
+  #auth { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+  #rTop { padding-top: calc(8px + env(safe-area-inset-top)); }
+  #rBottom { padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+  #shelves { padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
+  .sheet { margin-bottom: calc(12px + env(safe-area-inset-bottom)); }
+  #banner { padding-top: calc(11px + env(safe-area-inset-top)); }
+}
 </style>
 </head>
 <body class="t-light">
 
+<!-- ==================== GIRIS ==================== -->
+<div id="auth" class="screen hidden">
+  <div class="auth-box">
+    <h1 class="auth-logo">iRead</h1>
+    <p class="auth-sub">Kitaplığın tüm cihazlarında.</p>
+    <input id="authEmail" type="email" placeholder="E-posta" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <input id="authPass" type="password" placeholder="Şifre">
+    <div class="auth-msg" id="authMsg"></div>
+    <button class="btn-primary" id="btnSignIn">Giriş yap</button>
+    <button class="btn-ghost" id="btnSignUp">Hesap oluştur</button>
+    <div class="auth-foot"><button id="btnLocalOnly" style="text-decoration:underline">Şimdilik yalnızca bu cihazda kullan</button></div>
+  </div>
+</div>
+
 <!-- ==================== KITAPLIK ==================== -->
-<div id="library" class="screen">
+<div id="library" class="screen hidden">
   <header id="libHeader">
-    <div>
-      <h1>Kitaplığım</h1>
-      <span class="hdr-sub" id="bookCount"></span>
-    </div>
+    <h1 class="brand">iRead</h1>
     <div class="hdr-actions">
+      <button id="syncChip" class="off"><i></i><span id="syncText">Yerel</span></button>
       <button class="ibtn" id="btnLibSearch" title="Ara">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
       </button>
       <button class="ibtn" id="btnView" title="Görünüm">
-        <svg id="viewIcon" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       </button>
-      <button class="ibtn primary" id="btnAdd">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Kitap Ekle
+      <button class="ibtn solid" id="btnAdd" title="Kitap ekle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <button class="ibtn" id="btnProfile" title="Hesap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 20c.9-3.6 3.8-5.6 7.2-5.6s6.3 2 7.2 5.6"/></svg>
       </button>
     </div>
   </header>
@@ -410,10 +487,24 @@ body.t-night .toc-item { border-bottom-color: rgba(255,255,255,.06); }
     <button id="btnSearchClose">İptal</button>
   </div>
 
-  <nav id="collBar"></nav>
-  <section id="nowReading"></section>
-  <div id="shelves"></div>
-  <div id="emptyState" class="hidden">Bu koleksiyonda kitap yok. Sağ üstten kitap ekleyin.</div>
+  <div class="scrollarea">
+    <nav id="collBar"></nav>
+
+    <section class="section hidden" id="nowSection">
+      <div class="section-head"><h2>Devam et</h2></div>
+      <div id="nowReading"></div>
+    </section>
+
+    <section class="section" id="libSection">
+      <div class="section-head"><h2>Kitaplığım</h2><span id="bookCount"></span></div>
+    </section>
+
+    <div id="shelves"></div>
+    <div id="emptyState" class="hidden">
+      <b>Kitaplık boş</b>
+      <span>Sağ üstteki + ile cihazınızdan ya da bir bağlantıdan EPUB veya PDF ekleyin.</span>
+    </div>
+  </div>
 </div>
 
 <!-- ==================== READER ==================== -->
@@ -762,7 +853,7 @@ function saveSettings(){
    uygulama COKMEZ (kitaplar yalnizca o oturumda yasar).
    ============================================================ */
 var STORE_MODE = 'idb';                 // 'idb' | 'mem'
-var MEM = { books:{}, meta:{} };
+var MEM = { books:{}, meta:{}, queue:{} };
 var storageWarned = false;
 
 function showBanner(msg){
@@ -790,7 +881,7 @@ function initDatabase(){
     }
     if(!window.indexedDB){ fallback('window.indexedDB yok'); return; }
     var req;
-    try{ req = indexedDB.open('iRead', 1); }
+    try{ req = indexedDB.open('iRead', 2); }
     catch(e){ fallback('indexedDB.open istisnasi', e); return; }
     /* iOS 9'da bazen hicbir olay tetiklenmez; zaman asimi sart. */
     timer = setTimeout(function(){ fallback('zaman asimi (8 sn, olay gelmedi)'); }, 8000);
@@ -799,6 +890,7 @@ function initDatabase(){
         var db = e.target.result;
         if(!db.objectStoreNames.contains('books')) db.createObjectStore('books', { keyPath:'id' });
         if(!db.objectStoreNames.contains('meta'))  db.createObjectStore('meta',  { keyPath:'key' });
+        if(!db.objectStoreNames.contains('queue')) db.createObjectStore('queue', { keyPath:'qid' });
       }catch(err){ console.log('store olusturulamadi', err); }
     };
     req.onerror   = function(){ fallback('open error', req.error); };
@@ -822,7 +914,11 @@ function probeWrite(){
     }catch(e){ console.log('probe istisnasi', e); res(false); }
   });
 }
-function memKey(store, val){ return store === 'books' ? val.id : val.key; }
+function memKey(store, val){
+  if(store === 'books') return val.id;
+  if(store === 'queue') return val.qid;
+  return val.key;
+}
 
 function idbPut(store, val){
   if(STORE_MODE === 'mem'){ MEM[store][memKey(store, val)] = val; return Promise.resolve(val); }
@@ -876,11 +972,15 @@ function idbDel(store, key){
 }
 /* Kayit hatalari uygulamayi durdurmaz; kullaniciya bir kez sade uyari verilir. */
 function persistBook(b){
-  return idbPut('books', b)['catch'](function(e){
+  var track = !SUPPRESS_QUEUE;
+  if(track) b.updatedAt = (new Date()).getTime();
+  return idbPut('books', b).then(function(){
+    if(track) return enqueue('upsert', b.id);
+  })['catch'](function(e){
     console.log('kitap kaydedilemedi', e);
     if(!storageWarned){
       storageWarned = true;
-      showBanner('Kitap kalici olarak kaydedilemedi. Depolama alani dolu olabilir ya da Ozel Gezinme acik.');
+      showBanner('Kitap kalıcı olarak kaydedilemedi. Depolama alanı dolu olabilir ya da Özel Gezinme açık.');
     }
   });
 }
@@ -987,86 +1087,11 @@ function makeTextCover(title, author, seed){
 }
 
 /* ============================================================
-   DEMO KITAPLAR (ilk acilista)
-   ============================================================ */
-function demoChapters(kind){
-  if(kind === 1) return [
-    { t:'Bir Sabahın Kıyısında', p:[
-      'Gemi limandan ayrıldığında güneş henüz suyun üstüne değmemişti. Halatlar çözüldü, tahta güverte hafifçe inledi ve şehir, arkalarında yavaşça küçülen gri bir çizgiye dönüştü.',
-      'Kaptan haritayı açtı. Üzerinde kimsenin gitmediği bir koy, kırmızı mürekkeple işaretlenmişti. "Buraya varmak üç gün sürer," dedi, "ama dönmek çok daha uzun."',
-      'Rüzgâr kuzeyden esiyordu. Yelkenler doldu, pruva köpüğü ikiye ayırdı ve yolculuk gerçekten başladı.' ] },
-    { t:'Fener', p:[
-      'İkinci gecenin sonunda ufukta bir ışık belirdi. Düzenli aralıklarla yanıp sönüyordu: üç kısa, bir uzun. Denizciler bunun bir uyarı olduğunu biliyordu.',
-      'Genç tayfa küpeşteye yaslandı ve ışığı saymaya başladı. Saydıkça, ışığın kendisine bir şey anlatmaya çalıştığını düşündü.',
-      'Sabaha karşı sis indi. Fener kayboldu ama ritmi hâlâ herkesin aklındaydı.' ] },
-    { t:'Koy', p:[
-      'Koya vardıklarında su o kadar durgundu ki gemi kendi yansımasının üstünde duruyor gibiydi. Kumsalda eski bir sandık, yarısı kuma gömülü hâlde bekliyordu.',
-      'Sandığın içinde altın yoktu. Yalnızca bir defter vardı ve ilk sayfasında tek bir cümle yazılıydı: "Buraya kadar geldiysen, aradığın şey artık geride kaldı."' ] }
-  ];
-  if(kind === 2) return [
-    { t:'Kâğıttan Ekrana', p:[
-      'Bir kütüphane yalnızca kitapların toplandığı yer değildir; bir düzenin, bir hafızanın ve bir seçimin de adıdır. Raflar, hangi bilginin yan yana durduğuna karar verir.',
-      'Dijital kütüphaneler bu düzeni görünmez kıldı. Artık raf yok, ama sıralama var. Arama kutusu, eski kataloğun yerini aldı.',
-      'Yine de okuma eylemi değişmedi: bir satırdan diğerine geçmek, sayfanın kenarını işaretlemek, kaldığın yeri hatırlamak.' ] },
-    { t:'Kaldığın Yer', p:[
-      'Basılı kitapta yer imi fiziksel bir nesnedir: bir kâğıt parçası, bir kurdele, bazen katlanmış bir köşe. Dijital okuyucuda ise bu, bir konum kaydıdır.',
-      'İyi bir okuyucu, kullanıcının hiçbir zaman "neredeydim?" diye sormasına izin vermez. Kitabı kapattığın an ile açtığın an arasında hiçbir şey kaybolmamalıdır.' ] },
-    { t:'Tasarımın Sessizliği', p:[
-      'En iyi okuma arayüzü, fark edilmeyen arayüzdür. Araç çubuğu gerektiğinde belirir, gerekmediğinde kaybolur.',
-      'Kenar boşlukları, satır aralığı ve yazı boyutu; okurun gözünü değil, metnin ritmini korumak içindir.' ] }
-  ];
-  return [
-    { t:'Gece Nöbeti', p:[
-      'Şehir uyuduğunda okumak başka bir şeydir. Sesler azalır, sayfadaki harfler büyür ve zaman, sayfa sayısıyla ölçülmeye başlar.',
-      'Karanlık modda beyaz metin, gözün yorulmasını geciktirir. Ama asıl mesele kontrast değil, süreklilik: bir cümleden diğerine takılmadan geçebilmek.' ] },
-    { t:'İki Parmak', p:[
-      'Dokunmatik ekranlarda hareketler bir dil kurar. Sağa dokun, ileri git. Sola dokun, geri dön. İki parmağını birbirine yaklaştır, kitabı kapat ve rafına geri koy.',
-      'Bu hareket, kitabı elinden bırakmanın dijital karşılığıdır: ne bir düğme, ne bir menü; yalnızca küçük bir kıstırma.' ] },
-    { t:'Sabah Üçte', p:[
-      'Son bölümü bitirdiğinde saat üçü geçiyordu. Ekranın parlaklığını en aza indirdi, yer imini bıraktı ve uygulamayı kapattı.',
-      'Ertesi gün kitabı açtığında, tam olarak bıraktığı cümlenin başındaydı.' ] }
-  ];
-}
-function demoHTML(kind){
-  var ch = demoChapters(kind), out = '', i, j;
-  for(i = 0; i < ch.length; i++){
-    out += '<h2>' + esc(ch[i].t) + '</h2>';
-    for(j = 0; j < ch[i].p.length; j++) out += '<p>' + esc(ch[i].p[j]) + '</p>';
-  }
-  return out;
-}
-function seedDemoBooks(){
-  var defs = [
-    { t:'The Great Adventure', a:'Demo Kitap', k:1 },
-    { t:'Digital Library',     a:'Demo Kitap', k:2 },
-    { t:'Night Reader',        a:'Demo Kitap', k:3 }
-  ];
-  var chain = Promise.resolve(), i;
-  for(i = 0; i < defs.length; i++){
-    (function(d, idx){
-      chain = chain.then(function(){
-        var rec = {
-          id: uid(), type:'demo', title:d.t, author:d.a, file:null,
-          cover: makeTextCover(d.t, d.a, idx), customCover:null,
-          html: demoHTML(d.k), position:0, progress:0, pages:0,
-          lastOpened:0, order: idx, favorite:false, collections:[], bookmarks:[],
-          added: Date.now(), size:0
-        };
-        BOOKS.push(rec);
-        return persistBook(rec);
-      });
-    })(defs[i], i);
-  }
-  return chain;
-}
-
-/* ============================================================
    KITAPLIK
    ============================================================ */
 function loadLibrary(){
   return idbAll('books').then(function(list){
     BOOKS = list.sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
-    if(BOOKS.length === 0) return seedDemoBooks();
   }).then(function(){ renderLibrary(); });
 }
 function coverOf(b){ return b.customCover || b.cover || ''; }
@@ -1099,69 +1124,80 @@ function renderCollections(){
   h += '<button class="chip add" data-newcoll="1">+ Yeni Koleksiyon</button>';
   $('collBar').innerHTML = h;
 }
+/* Ekran genisligine gore kolon sayisi (CSS Grid YOK, flex-wrap) */
+function gridCols(w){
+  if(w < 420) return 2;        // iPhone 14 portre
+  if(w < 640) return 3;        // iPhone yatay / kucuk tablet
+  if(w < 900) return 4;        // iPad portre
+  if(w < 1200) return 5;       // iPad yatay
+  return 6;
+}
 function renderNowReading(){
   var last = null, i;
   for(i = 0; i < BOOKS.length; i++){
     if(BOOKS[i].lastOpened && (!last || BOOKS[i].lastOpened > last.lastOpened)) last = BOOKS[i];
   }
   var box = $('nowReading');
-  if(!last){ box.innerHTML = ''; return; }
+  if(!last){ box.innerHTML = ''; hide($('nowSection')); return; }
+  show($('nowSection'));
   box.innerHTML =
     '<div class="now-card" data-open="' + last.id + '">' +
       '<div class="now-cover"><img src="' + coverOf(last) + '" alt=""></div>' +
       '<div class="now-meta">' +
-        '<div class="now-kicker">Şimdi Oku</div>' +
         '<div class="now-title">' + esc(last.title) + '</div>' +
-        '<div class="now-author">' + esc(last.author || '') + ' · %' + pct(last) + ' tamamlandı</div>' +
+        '<div class="now-author">' + (last.author ? esc(last.author) + ' · ' : '') + '%' + pct(last) + ' tamamlandı</div>' +
         '<div class="now-bar"><i style="width:' + pct(last) + '%"></i></div>' +
-        '<span class="now-go">Okumaya Devam Et</span>' +
+        '<span class="now-go">Okumaya devam et</span>' +
       '</div>' +
     '</div>';
 }
+function isCloudOnly(b){ return !b.file && b.type !== 'demo'; }
+function subLine(b){
+  var t = (b.progress > 0) ? '%' + pct(b) + ' okundu' : (b.type === 'pdf' ? 'PDF' : 'EPUB');
+  if(b.favorite) t = '♥ ' + t;
+  return t;
+}
 function bookCardHTML(b, idx){
-  return '<div class="book" data-id="' + b.id + '" data-idx="' + idx + '">' +
+  return '<div class="book' + (isCloudOnly(b) ? ' cloud-only' : '') + '" data-id="' + b.id + '" data-idx="' + idx + '">' +
     '<div class="book-cover"><img src="' + coverOf(b) + '" alt=""></div>' +
-    (b.favorite ? '<div class="book-badge">❤️</div>' : '') +
+    (isCloudOnly(b) ? '<div class="book-badge">Bulutta</div>' : '') +
     '<button class="book-more" data-menu="' + b.id + '">•••</button>' +
     '<div class="book-title">' + esc(b.title) + '</div>' +
-    '<div class="book-sub">' + (b.progress > 0 ? '%' + pct(b) + ' okundu' : (b.type === 'pdf' ? 'PDF' : (b.type === 'epub' ? 'EPUB' : 'Demo'))) + '</div>' +
+    '<div class="book-sub">' + subLine(b) + '</div>' +
     (b.progress > 0 ? '<div class="book-prog"><i style="width:' + pct(b) + '%"></i></div>' : '') +
   '</div>';
 }
 function listRowHTML(b, idx){
-  return '<div class="book list-row" data-id="' + b.id + '" data-idx="' + idx + '">' +
+  return '<div class="book' + (isCloudOnly(b) ? ' cloud-only' : '') + '" data-id="' + b.id + '" data-idx="' + idx + '">' +
     '<div class="book-cover"><img src="' + coverOf(b) + '" alt=""></div>' +
     '<div class="list-meta"><div class="list-title">' + esc(b.title) + '</div>' +
-      '<div class="list-sub">' + esc(b.author || '') + (b.progress > 0 ? ' · %' + pct(b) + ' okundu' : '') + '</div></div>' +
-    '<button class="book-more" style="position:static;background:rgba(0,0,0,.08);color:inherit" data-menu="' + b.id + '">•••</button>' +
+      '<div class="list-sub">' + (b.author ? esc(b.author) + ' · ' : '') + subLine(b) + (isCloudOnly(b) ? ' · Bulutta' : '') + '</div></div>' +
+    '<button class="book-more" data-menu="' + b.id + '">•••</button>' +
   '</div>';
 }
 /* raf gorunumu: satir basina kac kitap sigacagini hesaplar */
 function renderShelves(){
   var list = visibleBooks(), host = $('shelves'), h = '', i;
-  if(list.length === 0){ host.innerHTML = ''; show($('emptyState')); return; }
-  hide($('emptyState'));
-  if(S.view === 'list'){
-    h = '<div class="shelf">';
-    for(i = 0; i < list.length; i++) h += listRowHTML(list[i], i);
-    h += '</div>';
-    host.innerHTML = h;
+  if(list.length === 0){
+    host.innerHTML = '';
+    show($('emptyState'));
+    hide($('libSection'));
     return;
   }
-  var w = host.clientWidth || 700;
-  var per = Math.floor((w + 20) / 152);
-  if(per < 2) per = 2;
-  var shelfNo = 0, idx = 0;
-  while(idx < list.length){
-    shelfNo++;
-    h += '<div class="shelf"><div class="shelf-label">RAF ' + shelfNo + '</div><div class="shelf-row">';
-    for(i = 0; i < per && idx < list.length; i++, idx++) h += bookCardHTML(list[idx], idx);
-    h += '</div><div class="shelf-board"></div></div>';
+  hide($('emptyState'));
+  show($('libSection'));
+  if(S.view === 'list'){
+    h = '<div class="grid list">';
+    for(i = 0; i < list.length; i++) h += listRowHTML(list[i], i);
+  } else {
+    h = '<div class="grid cols-' + gridCols(host.clientWidth || 700) + '">';
+    for(i = 0; i < list.length; i++) h += bookCardHTML(list[i], i);
   }
+  h += '</div>';
   host.innerHTML = h;
 }
 function renderLibrary(){
-  $('bookCount').innerHTML = BOOKS.length + ' kitap';
+  $('bookCount').innerHTML = BOOKS.length ? (BOOKS.length + ' kitap') : '';
   renderCollections();
   renderNowReading();
   renderShelves();
@@ -1299,15 +1335,19 @@ function importBuffer(buf, name, size){
   var rec = {
     id: uid(), type: isPdf ? 'pdf' : 'epub',
     title: String(name).replace(/\.(epub|pdf)$/i, '').replace(/^.*[\/\\]/, ''), author: '',
-    file: buf, cover:'', customCover:null, html:null,
+    file: buf, hasFile: true, cloudPath: null,
+    remoteId: (cloudConfigured() && CLOUD.on) ? uuid4() : null,
+    cover:'', customCover:null, html:null,
     position: isPdf ? 1 : null, progress:0, pages:0,
     lastOpened:0, order: BOOKS.length, favorite:false, collections:[], bookmarks:[],
-    added: (new Date()).getTime(), size: size || 0
+    added: (new Date()).getTime(), updatedAt: (new Date()).getTime(), size: size || 0
   };
   (isPdf ? fillPdfMeta(rec, buf) : fillEpubMeta(rec, buf)).then(function(){
     if(!rec.cover) rec.cover = makeTextCover(rec.title, rec.author, BOOKS.length);
     BOOKS.push(rec);
     return persistBook(rec);
+  }).then(function(){
+    if(rec.remoteId) return enqueue('file', rec.id);
   }).then(function(){
     renderLibrary();
     toast(STORE_MODE === 'mem' ? 'Kitap eklendi (yalnızca bu oturum)' : 'Kitap eklendi');
@@ -1484,8 +1524,10 @@ function openMenuFor(id){
   if(!b) return;
   coverTargetId = id;                       // label ile secim yapilacagi icin onceden ayarla
   $('bsTitle').innerHTML = esc(b.title);
-  $('bsSub').innerHTML = esc(b.author || (b.type === 'demo' ? 'Demo kitap' : b.type.toUpperCase())) + ' · %' + pct(b) + ' okundu';
+  $('bsSub').innerHTML = (b.author ? esc(b.author) + ' · ' : '') + b.type.toUpperCase() +
+                         ' · %' + pct(b) + ' okundu · ' + (isCloudOnly(b) ? 'Bulutta' : 'Bu cihazda');
   var h = '';
+  if(isCloudOnly(b) && b.cloudPath) h += sheetRow('⬇', 'Bu cihaza indir', 'download');
   h += sheetRow('📖', b.progress > 0 ? 'Okumaya devam et' : 'Oku', 'open');
   h += sheetRow(b.favorite ? '💔' : '❤️', b.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle', 'fav');
   h += sheetRow('📁', 'Koleksiyona ekle', 'coll');
@@ -1517,7 +1559,10 @@ function sheetAction(act, id){
     closeSheets();
     setTimeout(function(){
       if(confirm('"' + b.title + '" silinsin mi?')){
+        var rid = b.remoteId, cpath = b.cloudPath;
         idbDel('books', id).then(function(){
+          if(rid) return enqueue('delete', id, { remoteId: rid, path: cpath });
+        }).then(function(){
           for(var i = 0; i < BOOKS.length; i++) if(BOOKS[i].id === id){ BOOKS.splice(i, 1); break; }
           return persistOrder();
         }).then(function(){ renderLibrary(); toast('Kitap silindi'); });
@@ -1592,6 +1637,11 @@ function askText(title, placeholder, cb){
 function openBook(id, e){
   var b = bookById(id);
   if(!b) return;
+  if(isCloudOnly(b)){                       // yalnizca bulutta: once indir
+    if(b.cloudPath) downloadBookFile(id, function(ok){ if(ok) openBook(id); });
+    else toast('Kitap dosyası bu cihazda yok');
+    return;
+  }
   flyCoverAnim(id, e);
   setTimeout(function(){ openReader(b); }, 170);
 }
@@ -2270,6 +2320,19 @@ function tapAt(x){
 function bindEvents(){
   /* --- kitaplik ust bar --- */
   $('btnAdd').onclick = openAddSheet;
+  $('btnProfile').onclick = openAccountSheet;
+  $('syncChip').onclick = function(){ if(CLOUD.on) syncNow(false); else openAccountSheet(); };
+  $('btnSignIn').onclick = doSignIn;
+  $('btnSignUp').onclick = doSignUp;
+  $('btnLocalOnly').onclick = function(){ lsSet('iread.localonly', '1'); enterLibrary(); setSyncStatus('off'); };
+  $('authPass').onkeydown = function(e){ if(e.keyCode === 13) doSignIn(); };
+  if(window.addEventListener){
+    window.addEventListener('online', function(){ if(CLOUD.on) syncNow(true); }, false);
+    window.addEventListener('offline', function(){ if(CLOUD.on) setSyncStatus('offline'); }, false);
+  }
+  setInterval(function(){                      // kitaplik acikken periyodik esitleme
+    if(CLOUD.on && !has($('library'), 'hidden')) syncNow(true);
+  }, 180000);
   $('bannerClose').onclick = hideBanner;
   /* accept: iOS'ta karisik accept degerleri secimi Fotograflar'a kilitliyor,
      bu yuzden yalnizca masaustu/modern tarayicilarda uygulaniyor. */
@@ -2448,6 +2511,13 @@ function bindEvents(){
 }
 /* kitaplik menusu ile reader menusu ayni panelde calisir */
 function readerOrBookAction(act, id){
+  if(act === 'download'){ closeSheets(); downloadBookFile(id); return; }
+  if(act === 'sync-now'){ closeSheets(); syncNow(false); return; }
+  if(act === 'sign-out'){ closeSheets(); setTimeout(doSignOut, 220); return; }
+  if(act === 'go-auth'){ closeSheets(); lsSet('iread.localonly', ''); setTimeout(showAuthScreen, 220); return; }
+  if(act === 'mig-yes'){ closeSheets(); runMigration(); return; }
+  if(act === 'mig-no'){ closeSheets(); if(CLOUD.uid) lsSet('iread.migrated.' + CLOUD.uid, '1'); return; }
+  if(act === 'open-aa'){ closeSheets(); setTimeout(function(){ syncAaPanel(); openSheet($('aaPanel')); }, 220); return; }
   if(act === 'url'){
     askText('Bağlantıdan ekle', 'https://.../kitap.epub', function(u){ addBookFromUrl(u); });
     return;
@@ -2479,6 +2549,476 @@ function openReaderMenu(){
   openSheet($('bookSheet'));
 }
 
+
+/* ============================================================
+   BULUT (Supabase) — ES5, XMLHttpRequest, SDK yok
+   Buraya kendi proje bilgilerini yaz. Bos birakirsan uygulama
+   tamamen yerel calisir (giris ekrani gosterilmez).
+   ============================================================ */
+var SUPABASE_CONFIG = {
+  url: 'https://jppconqtbjhsgwefwbra.supabase.co/rest/v1/' ,
+  key: 'sb_publishable_hvXTkMytvEnlC6kZdwsyJA_F10B9kBM'
+};
+
+var CLOUD = {
+  on: false,          // oturum acik mi
+  token: null, refresh: null, expires: 0,
+  uid: null, email: null,
+  status: 'off',      // off | ok | sync | offline | err
+  busy: false
+};
+var SUPPRESS_QUEUE = false;   // buluttan gelen veriyi yazarken kuyruga eklemeyi kapatir
+var syncDebounce = null;
+
+function cloudConfigured(){ return !!(SUPABASE_CONFIG.url && SUPABASE_CONFIG.key); }
+function apiUrl(path){ return String(SUPABASE_CONFIG.url).replace(/\/+$/, '') + path; }
+function nowIso(t){ return new Date(t || (new Date()).getTime()).toISOString(); }
+function uuid4(){
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c){
+    var r = Math.random() * 16 | 0, v = (c === 'x') ? r : ((r & 0x3) | 0x8);
+    return v.toString(16);
+  });
+}
+function isOnline(){ return (typeof navigator.onLine === 'boolean') ? navigator.onLine : true; }
+
+/* ---------- temel XHR ---------- */
+function cloudXhr(method, url, body, opts, cb){
+  opts = opts || {};
+  var xhr = new XMLHttpRequest();
+  try{ xhr.open(method, url, true); }catch(e){ cb(e); return; }
+  xhr.setRequestHeader('apikey', SUPABASE_CONFIG.key);
+  if(opts.auth !== false && CLOUD.token) xhr.setRequestHeader('Authorization', 'Bearer ' + CLOUD.token);
+  else if(opts.anonAuth) xhr.setRequestHeader('Authorization', 'Bearer ' + SUPABASE_CONFIG.key);
+  if(opts.contentType) xhr.setRequestHeader('Content-Type', opts.contentType);
+  if(opts.prefer) xhr.setRequestHeader('Prefer', opts.prefer);
+  if(opts.upsert) xhr.setRequestHeader('x-upsert', 'true');
+  if(opts.arraybuffer) xhr.responseType = 'arraybuffer';
+  xhr.onload = function(){
+    var st = xhr.status;
+    if(st >= 200 && st < 300){
+      if(opts.arraybuffer){ cb(null, xhr.response, st); return; }
+      var d = null;
+      try{ d = xhr.responseText ? JSON.parse(xhr.responseText) : null; }catch(e){ d = xhr.responseText; }
+      cb(null, d, st);
+    } else {
+      var msg = xhr.responseText || ('HTTP ' + st);
+      console.log('Supabase hata ' + st + ' ' + url + ' :: ' + msg);
+      cb({ status: st, message: msg });
+    }
+  };
+  xhr.onerror = function(){ cb({ status: 0, message: 'ag hatasi' }); };
+  try{ xhr.send(body === undefined ? null : body); }catch(e2){ cb(e2); }
+}
+function restGet(path, cb){ cloudXhr('GET', apiUrl('/rest/v1' + path), null, {}, cb); }
+function restUpsert(table, rows, cb){
+  cloudXhr('POST', apiUrl('/rest/v1/' + table), JSON.stringify(rows),
+    { contentType: 'application/json', prefer: 'resolution=merge-duplicates,return=minimal' }, cb);
+}
+
+/* ---------- oturum ---------- */
+function saveSession(d){
+  if(!d || !d.access_token) return false;
+  CLOUD.token = d.access_token;
+  CLOUD.refresh = d.refresh_token || CLOUD.refresh;
+  CLOUD.expires = (new Date()).getTime() + ((d.expires_in || 3600) * 1000);
+  if(d.user){ CLOUD.uid = d.user.id; CLOUD.email = d.user.email; }
+  CLOUD.on = true;
+  lsSet('iread.session', JSON.stringify({
+    token: CLOUD.token, refresh: CLOUD.refresh, expires: CLOUD.expires, uid: CLOUD.uid, email: CLOUD.email
+  }));
+  return true;
+}
+function loadSession(){
+  var raw = lsGet('iread.session');
+  if(!raw) return false;
+  try{
+    var o = JSON.parse(raw);
+    if(!o || !o.refresh) return false;
+    CLOUD.token = o.token; CLOUD.refresh = o.refresh; CLOUD.expires = o.expires || 0;
+    CLOUD.uid = o.uid; CLOUD.email = o.email; CLOUD.on = true;
+    return true;
+  }catch(e){ return false; }
+}
+function clearSession(){
+  CLOUD.on = false; CLOUD.token = null; CLOUD.refresh = null; CLOUD.uid = null; CLOUD.email = null;
+  lsSet('iread.session', '');
+}
+function authSignIn(email, pass, cb){
+  cloudXhr('POST', apiUrl('/auth/v1/token?grant_type=password'),
+    JSON.stringify({ email: email, password: pass }),
+    { contentType: 'application/json', auth: false }, function(err, d){
+      if(err){ cb(err); return; }
+      cb(saveSession(d) ? null : { message: 'oturum acilamadi' });
+    });
+}
+function authSignUp(email, pass, cb){
+  cloudXhr('POST', apiUrl('/auth/v1/signup'),
+    JSON.stringify({ email: email, password: pass }),
+    { contentType: 'application/json', auth: false }, function(err, d){
+      if(err){ cb(err); return; }
+      if(d && d.access_token){ saveSession(d); cb(null, true); return; }
+      cb(null, false);          // e-posta dogrulamasi bekleniyor
+    });
+}
+function ensureToken(cb){
+  if(!CLOUD.on){ cb(false); return; }
+  if(CLOUD.token && (new Date()).getTime() < CLOUD.expires - 60000){ cb(true); return; }
+  if(!CLOUD.refresh){ cb(false); return; }
+  cloudXhr('POST', apiUrl('/auth/v1/token?grant_type=refresh_token'),
+    JSON.stringify({ refresh_token: CLOUD.refresh }),
+    { contentType: 'application/json', auth: false }, function(err, d){
+      if(err || !saveSession(d)){ console.log('token yenilenemedi', err); cb(false); return; }
+      cb(true);
+    });
+}
+
+/* ---------- senkron durumu (kucuk rozet) ---------- */
+function setSyncStatus(st){
+  CLOUD.status = st;
+  var chip = $('syncChip'), txt = $('syncText');
+  if(!chip) return;
+  chip.className = (st === 'ok') ? 'ok' : (st === 'err' ? 'err' : (st === 'sync' ? '' : 'off'));
+  txt.innerHTML = st === 'ok' ? 'Senkron'
+                : st === 'sync' ? 'Eşitleniyor'
+                : st === 'offline' ? 'Çevrimdışı'
+                : st === 'err' ? 'Eşitlenemedi'
+                : 'Yerel';
+}
+
+/* ============================================================
+   SENKRON KUYRUGU (offline-first)
+   ============================================================ */
+function enqueue(type, bookId, payload){
+  if(SUPPRESS_QUEUE || !cloudConfigured() || !CLOUD.on) return Promise.resolve();
+  /* Kullanici izin vermeden (remoteId atanmadan) hicbir kitap buluta gitmez */
+  if(type === 'upsert'){
+    var bb = bookById(bookId);
+    if(!bb || !bb.remoteId) return Promise.resolve();
+  }
+  var item = { qid: type + ':' + bookId, type: type, bookId: bookId, payload: payload || null, created: (new Date()).getTime() };
+  return idbPut('queue', item).then(function(){ scheduleSync(); })['catch'](function(e){ console.log('kuyruk yazilamadi', e); });
+}
+function scheduleSync(){
+  if(!CLOUD.on) return;
+  if(syncDebounce) clearTimeout(syncDebounce);
+  syncDebounce = setTimeout(function(){ syncNow(true); }, 4000);
+}
+function queueAll(){ return idbAll('queue')['catch'](function(){ return []; }); }
+
+/* ---------- kitap kaydi <-> bulut satiri ---------- */
+function rowFromBook(b){
+  var row = {
+    id: b.remoteId,
+    user_id: CLOUD.uid,
+    title: b.title || '',
+    author: b.author || '',
+    type: b.type || 'epub',
+    file_path: b.cloudPath || null,
+    custom_cover: b.customCover || null,
+    sort_order: b.order || 0,
+    favorite: !!b.favorite,
+    progress: b.progress || 0,
+    position: (b.position === null || b.position === undefined) ? null : String(b.position),
+    bookmarks: b.bookmarks || [],
+    collections: b.collections || [],
+    deleted: false,
+    updated_at: nowIso(b.updatedAt)
+  };
+  /* Varsayilan kapak degismez; bir kez gonderilir, sonra tekrar yuklenmez.
+     PostgREST yalnizca gonderilen kolonlari gunceller. */
+  if(!b.coverSynced && b.cover) row.cover_thumb = b.cover;
+  return row;
+}
+function applyRowToBook(b, row){
+  b.title = row.title || b.title;
+  b.author = row.author || '';
+  b.type = row.type || b.type;
+  b.cloudPath = row.file_path || b.cloudPath || null;
+  if(row.cover_thumb) b.cover = row.cover_thumb;
+  b.customCover = row.custom_cover || null;
+  b.order = (row.sort_order === null || row.sort_order === undefined) ? b.order : row.sort_order;
+  b.favorite = !!row.favorite;
+  b.progress = row.progress || 0;
+  b.position = (row.position === null || row.position === undefined) ? b.position
+             : (b.type === 'pdf' ? parseInt(row.position, 10) : row.position);
+  b.bookmarks = row.bookmarks || [];
+  b.collections = row.collections || [];
+  b.updatedAt = new Date(row.updated_at).getTime();
+  return b;
+}
+function bookFromRow(row){
+  var b = {
+    id: uid(), remoteId: row.id, type: row.type || 'epub',
+    title: row.title || 'Kitap', author: row.author || '',
+    file: null, hasFile: false, cloudPath: row.file_path || null,
+    cover: row.cover_thumb || '', customCover: row.custom_cover || null, html: null,
+    position: null, progress: 0, pages: 0, lastOpened: 0,
+    order: row.sort_order || 0, favorite: false, collections: [], bookmarks: [],
+    added: (new Date()).getTime(), size: 0, updatedAt: 0
+  };
+  applyRowToBook(b, row);
+  if(!b.cover) b.cover = makeTextCover(b.title, b.author, 0);
+  return b;
+}
+
+/* ---------- kuyrugu bulutla isle ---------- */
+function flushQueue(cb){
+  queueAll().then(function(items){
+    if(!items.length){ cb(); return; }
+    var i = 0;
+    function step(){
+      if(i >= items.length){ cb(); return; }
+      var it = items[i++];
+      handleQueueItem(it, function(ok){
+        if(ok) idbDel('queue', it.qid).then(step)['catch'](step);
+        else step();          // basarisizsa kuyrukta kalsin, sonra tekrar denenir
+      });
+    }
+    step();
+  });
+}
+function handleQueueItem(it, done){
+  var b = bookById(it.bookId);
+  if(it.type === 'delete'){
+    var pl = it.payload || {};
+    if(!pl.remoteId){ done(true); return; }
+    cloudXhr('PATCH', apiUrl('/rest/v1/books?id=eq.' + pl.remoteId),
+      JSON.stringify({ deleted: true, updated_at: nowIso() }),
+      { contentType: 'application/json', prefer: 'return=minimal' }, function(err){
+        if(err){ done(false); return; }
+        if(pl.path) cloudXhr('DELETE', apiUrl('/storage/v1/object/books/' + pl.path), null, {}, function(){ done(true); });
+        else done(true);
+      });
+    return;
+  }
+  if(!b){ done(true); return; }
+  if(it.type === 'upsert'){
+    if(!b.remoteId){ b.remoteId = uuid4(); }
+    restUpsert('books', [rowFromBook(b)], function(err){
+      if(err){ done(false); return; }
+      b.coverSynced = true;
+      SUPPRESS_QUEUE = true;
+      persistBook(b).then(function(){ SUPPRESS_QUEUE = false; done(true); });
+    });
+    return;
+  }
+  if(it.type === 'file'){
+    if(!b.file){ done(true); return; }
+    if(!b.remoteId) b.remoteId = uuid4();
+    var ext = (b.type === 'pdf') ? 'pdf' : 'epub';
+    var path = CLOUD.uid + '/' + b.remoteId + '/book.' + ext;
+    cloudXhr('POST', apiUrl('/storage/v1/object/books/' + path), b.file,
+      { contentType: (b.type === 'pdf' ? 'application/pdf' : 'application/epub+zip'), upsert: true }, function(err){
+        if(err && err.status !== 409){ done(false); return; }
+        b.cloudPath = path;
+        restUpsert('books', [rowFromBook(b)], function(e2){
+          if(e2){ done(false); return; }
+          b.coverSynced = true;
+          SUPPRESS_QUEUE = true;
+          persistBook(b).then(function(){ SUPPRESS_QUEUE = false; done(true); });
+        });
+      });
+    return;
+  }
+  done(true);
+}
+
+/* ---------- buluttan cek + birlestir (en yeni updated_at kazanir) ---------- */
+function pullRemote(cb){
+  restGet('/books?select=*&order=sort_order.asc', function(err, rows){
+    if(err){ cb(err); return; }
+    if(!rows || !rows.length){ cb(); return; }
+    var i, byRemote = {}, changed = false;
+    for(i = 0; i < BOOKS.length; i++){ if(BOOKS[i].remoteId) byRemote[BOOKS[i].remoteId] = BOOKS[i]; }
+    SUPPRESS_QUEUE = true;
+    var chain = Promise.resolve();
+    for(i = 0; i < rows.length; i++){
+      (function(row){
+        chain = chain.then(function(){
+          var local = byRemote[row.id];
+          if(row.deleted){
+            if(local){
+              changed = true;
+              for(var k = 0; k < BOOKS.length; k++) if(BOOKS[k] === local){ BOOKS.splice(k, 1); break; }
+              return idbDel('books', local.id);
+            }
+            return;
+          }
+          if(!local){
+            var nb = bookFromRow(row);
+            BOOKS.push(nb); changed = true;
+            return idbPut('books', nb);
+          }
+          var remoteT = new Date(row.updated_at).getTime();
+          if(remoteT > (local.updatedAt || 0)){       // bulut daha yeni -> yereli guncelle
+            applyRowToBook(local, row);
+            changed = true;
+            return idbPut('books', local);
+          }
+          if((local.updatedAt || 0) > remoteT){        // yerel daha yeni -> geri gonder
+            SUPPRESS_QUEUE = false;
+            var pr = enqueue('upsert', local.id);
+            SUPPRESS_QUEUE = true;
+            return pr;
+          }
+        });
+      })(rows[i]);
+    }
+    chain.then(function(){
+      SUPPRESS_QUEUE = false;
+      BOOKS.sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+      if(changed) renderLibrary();
+      cb();
+    })['catch'](function(e){ SUPPRESS_QUEUE = false; console.log('birlestirme hatasi', e); cb(e); });
+  });
+}
+
+/* ---------- ana senkron ---------- */
+function syncNow(silent){
+  if(!cloudConfigured() || !CLOUD.on){ setSyncStatus('off'); return; }
+  if(CLOUD.busy) return;
+  if(!isOnline()){ setSyncStatus('offline'); return; }
+  CLOUD.busy = true;
+  setSyncStatus('sync');
+  ensureToken(function(ok){
+    if(!ok){ CLOUD.busy = false; setSyncStatus('err'); if(!silent) toast('Oturum yenilenemedi, tekrar giriş yapın'); return; }
+    flushQueue(function(){
+      pullRemote(function(err){
+        CLOUD.busy = false;
+        setSyncStatus(err ? 'err' : 'ok');
+        if(!silent) toast(err ? 'Eşitlenemedi' : 'Eşitlendi');
+      });
+    });
+  });
+}
+
+/* ---------- kitap dosyasini buluttan indir ---------- */
+function downloadBookFile(id, cb){
+  var b = bookById(id);
+  if(!b || !b.cloudPath){ if(cb) cb(false); return; }
+  if(!isOnline()){ toast('Çevrimdışısınız'); if(cb) cb(false); return; }
+  toast('İndiriliyor…');
+  ensureToken(function(ok){
+    if(!ok){ toast('Oturum gerekli'); if(cb) cb(false); return; }
+    cloudXhr('GET', apiUrl('/storage/v1/object/books/' + b.cloudPath), null, { arraybuffer: true }, function(err, buf){
+      if(err || !buf){ toast('İndirilemedi'); if(cb) cb(false); return; }
+      b.file = buf; b.hasFile = true; b.size = buf.byteLength;
+      SUPPRESS_QUEUE = true;
+      persistBook(b).then(function(){
+        SUPPRESS_QUEUE = false;
+        renderLibrary();
+        toast('Kitap bu cihaza indirildi');
+        if(cb) cb(true);
+      });
+    });
+  });
+}
+
+/* ---------- ilk giriste yerel kitaplari yedekleme teklifi ---------- */
+function offerMigration(){
+  var i, n = 0;
+  for(i = 0; i < BOOKS.length; i++){ if(BOOKS[i].file && !BOOKS[i].remoteId) n++; }
+  if(!n) return;
+  if(lsGet('iread.migrated.' + CLOUD.uid)) return;
+  $('bsTitle').innerHTML = 'Kitapları hesabına yükle';
+  $('bsSub').innerHTML = 'Bu cihazda ' + n + ' kitap bulundu';
+  $('bsBody').innerHTML =
+    '<div class="tiny">Kitaplarını hesabına yüklersen diğer cihazlarında da görünür. Hiçbir kitap silinmez; yükleme sırasında da okumaya devam edebilirsin.</div>' +
+    sheetRow('☁️', 'Kitapları yükle', 'mig-yes') +
+    sheetRow('📵', 'Şimdilik yerel tut', 'mig-no');
+  $('bsBody').setAttribute('data-id', '');
+  openSheet($('bookSheet'));
+}
+function runMigration(){
+  var i, chain = Promise.resolve();
+  for(i = 0; i < BOOKS.length; i++){
+    (function(b){
+      if(!b.file || b.remoteId) return;
+      chain = chain.then(function(){
+        b.remoteId = uuid4();
+        b.hasFile = true;
+        b.updatedAt = (new Date()).getTime();
+        return persistBook(b).then(function(){ return enqueue('file', b.id); });
+      });
+    })(BOOKS[i]);
+  }
+  chain.then(function(){
+    lsSet('iread.migrated.' + CLOUD.uid, '1');
+    toast('Yükleme kuyruğa alındı');
+    syncNow(true);
+  });
+}
+
+/* ---------- hesap paneli ---------- */
+function openAccountSheet(){
+  $('bsTitle').innerHTML = CLOUD.on ? 'Hesap' : 'iRead';
+  $('bsSub').innerHTML = CLOUD.on ? esc(CLOUD.email || '') : (cloudConfigured() ? 'Oturum açık değil' : 'Yalnızca bu cihaz');
+  var h = '';
+  if(cloudConfigured() && CLOUD.on){
+    h += '<div class="kv"><b>Durum</b>' +
+         (CLOUD.status === 'ok' ? 'Senkron' : CLOUD.status === 'sync' ? 'Eşitleniyor' : CLOUD.status === 'offline' ? 'Çevrimdışı' : CLOUD.status === 'err' ? 'Eşitlenemedi' : 'Yerel') +
+         '<br><b>Kitap</b>' + BOOKS.length + '</div>';
+    h += sheetRow('🔄', 'Şimdi eşitle', 'sync-now');
+    h += sheetRow('☁️', 'Bu cihazdaki kitapları yükle', 'mig-yes');
+    h += sheetRow('🚪', 'Çıkış yap', 'sign-out', 'danger');
+  } else if(cloudConfigured()){
+    h += sheetRow('🔑', 'Giriş yap / hesap oluştur', 'go-auth');
+  } else {
+    h += '<div class="tiny">Bulut eşitleme kapalı. Kodun başındaki SUPABASE_CONFIG alanına proje adresini ve anon anahtarını yazarsan kitaplığın tüm cihazlarında görünür.</div>';
+  }
+  h += sheetRow('🎨', 'Görünüm ve okuma ayarları', 'open-aa');
+  $('bsBody').innerHTML = h;
+  $('bsBody').setAttribute('data-id', '');
+  openSheet($('bookSheet'));
+}
+function showAuthScreen(){
+  hide($('library')); hide($('reader')); show($('auth'));
+  $('authMsg').innerHTML = '';
+}
+function enterLibrary(){
+  hide($('auth')); show($('library'));
+  renderLibrary();
+}
+function doSignIn(){
+  var em = $('authEmail').value.replace(/^\s+|\s+$/g, '');
+  var pw = $('authPass').value;
+  if(!em || !pw){ $('authMsg').innerHTML = 'E-posta ve şifre gerekli.'; return; }
+  $('authMsg').innerHTML = 'Giriş yapılıyor…';
+  authSignIn(em, pw, function(err){
+    if(err){ $('authMsg').innerHTML = 'Giriş yapılamadı. E-posta veya şifre hatalı.'; return; }
+    $('authMsg').innerHTML = '';
+    $('authPass').value = '';
+    enterLibrary();
+    setSyncStatus('sync');
+    syncNow(true);
+    setTimeout(offerMigration, 1200);
+  });
+}
+function doSignUp(){
+  var em = $('authEmail').value.replace(/^\s+|\s+$/g, '');
+  var pw = $('authPass').value;
+  if(!em || pw.length < 6){ $('authMsg').innerHTML = 'Şifre en az 6 karakter olmalı.'; return; }
+  $('authMsg').innerHTML = 'Hesap oluşturuluyor…';
+  authSignUp(em, pw, function(err, signedIn){
+    if(err){ $('authMsg').innerHTML = 'Hesap oluşturulamadı. Bu e-posta kayıtlı olabilir.'; return; }
+    if(signedIn){
+      $('authMsg').innerHTML = '';
+      $('authPass').value = '';
+      enterLibrary();
+      syncNow(true);
+      setTimeout(offerMigration, 1200);
+    } else {
+      $('authMsg').innerHTML = 'Hesap oluşturuldu. E-postanı doğrulayıp giriş yap.';
+    }
+  });
+}
+function doSignOut(){
+  clearSession();
+  setSyncStatus('off');
+  toast('Çıkış yapıldı. Kitaplar bu cihazda kalır.');
+  showAuthScreen();
+}
+
 /* ============================================================
    BASLANGIC
    ============================================================ */
@@ -2499,12 +3039,26 @@ function initApp(){
     return loadLibrary();
   }).then(function(){
     postInitNotices(isFile);
+    startupScreen();
   })['catch'](function(err){
     console.log('kitaplik yuklenemedi', err);
     STORE_MODE = 'mem';
     explainStorageProblem(isFile);
-    try{ renderLibrary(); }catch(e){}
+    try{ startupScreen(); }catch(e){}
   });
+}
+/* Hangi ekran acilacak: giris mi, kitaplik mi */
+function startupScreen(){
+  if(!cloudConfigured()){ enterLibrary(); setSyncStatus('off'); return; }
+  if(loadSession()){
+    enterLibrary();
+    setSyncStatus(isOnline() ? 'sync' : 'offline');
+    syncNow(true);
+    setTimeout(offerMigration, 1500);
+    return;
+  }
+  if(lsGet('iread.localonly')){ enterLibrary(); setSyncStatus('off'); return; }
+  showAuthScreen();
 }
 /* Depolama calisiyorsa gosterilecek tek seferlik bilgiler */
 function postInitNotices(isFile){
